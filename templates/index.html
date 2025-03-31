@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Air Quality Data</h1>
+    <div class="graph-container">
+        <h2>Historical Air Quality Data</h2>
+        {{ graph_historical | safe }}
+    </div>
+    <div class="graph-container">
+        <h2>Predicted Air Quality Data</h2>
+        {{ graph_predicted | safe }}
+    </div>
+    <h2>Next Air Pollution Prediction</h2>
+    <p>
+        {% if next_pollution_time %}
+            Next predicted air pollution time: {{ next_pollution_time }}
+        {% else %}
+            No air pollution predicted in the next 24 hours.
+        {% endif %}
+    </p>
+</body>
+</html>

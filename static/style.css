@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f0f0f0;  /* Light gray background */
+}
+
+h1 {
+    text-align: center;
+    color: #333;  /* Dark gray text color */
+    margin-bottom: 20px;
+}
+
+.table-container {
+    display: flex;
+    justify-content: center;
+}
+
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 20px 0;
+    background-color: #fff;  /* White background for table */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);  /* Soft shadow effect */
+}
+
+table, th, td {
+    border: 1px solid #ddd;  /* Light gray borders */
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;  /* Light gray header background */
+    color: #333;  /* Dark gray text color */
+}
+
+/* Hover effect for table rows */
+tr:hover {
+    background-color: #f5f5f5;  /* Lighter gray on hover */
+}
