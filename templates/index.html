@@ -3,27 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Air Quality Data</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Air Quality Monitoring</title>
+    <!-- Bootstrap Dark Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-dark.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+        background-color: aliceblue;
+        }
+        nav {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+        footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .card {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .status-card {
+            transition: transform 0.3s;
+        }
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        footer {
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        .graph-container {
+            background-color: #2c3034;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .weather-card {
+            background-image: url('../static/bg.jpg');
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #2c3034;
+            color: black;
+            padding: 20px;
+            text-align: center;
+        }
+        .weather-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Air Quality Data</h1>
-    <div class="graph-container">
-        <h2>Historical Air Quality Data</h2>
-        {{ graph_historical | safe }}
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-cloud-haze2-fill me-2"></i>
+                Air Quality Monitor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link  active" href="/"><i class="bi bi-house-door me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis"><i class="bi bi-graph-up"></i> Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/impacts"><i class="bi bi-heart-pulse me-1"></i> Impacts</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-cloud-sun"></i> Air Quality Dashboard
+            </h1>
+            <p class="lead">Real-time monitoring and predictive analysis of air pollution levels</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="weather-card">
+                    <div id="weather-icon" class="weather-icon">
+                        <i class="bi bi-cloud-sun"></i>
+                    </div>
+                    <h4 id="weather-condition">Loading...</h4>
+                    <p id="weather-temp">Please wait</p>
+                    <p id="weather-location">Chennai, India</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="graph-container">
-        <h2>Predicted Air Quality Data</h2>
-        {{ graph_predicted | safe }}
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card status-card  border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-speedometer2"></i> Current Status
+                        </h5>
+                        <h2 class="{{ status_class }}">{{ current_status }}</h2>
+                        <p class="card-text">AQI: {{ current_quality }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card status-card  border-warning">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-clock-history"></i> Prediction
+                        </h5>
+                        <div class="alert {{ alert_class }} mt-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {{ prediction_message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card status-card  border-info">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-calendar-check"></i> Last Updated
+                        </h5>
+                        <h4>{{ last_update }}</h4>
+                        <button class="btn btn-sm btn-outline-info mt-2" onclick="window.location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+        <!-- Additional Info -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card  border-secondary">
+                    <div class="card-header bg-secondary">
+                        <h5><i class="bi bi-info-circle"></i> Air Quality Index Guide</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush ">
+                            <li class="list-group-item  text-success">
+                                <i class="bi bi-check-circle-fill"></i> Good (0-150)
+                            </li>
+                            <li class="list-group-item  text-warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Moderate (151-300)
+                            </li>
+                            <li class="list-group-item  text-danger">
+                                <i class="bi bi-x-circle-fill"></i> Poor (301+)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card  border-secondary">
+                    <div class="card-header bg-secondary">
+                        <h5><i class="bi bi-shield-exclamation"></i> Health Recommendations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-people-fill"></i> <strong>Sensitive groups:</strong> Reduce prolonged outdoor exertion
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-person-x-fill"></i> <strong>General public:</strong> Limit outdoor activities when AQI > 300
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <h2>Next Air Pollution Prediction</h2>
-    <p>
-        {% if next_pollution_time %}
-            Next predicted air pollution time: {{ next_pollution_time }}
-        {% else %}
-            No air pollution predicted in the next 24 hours.
-        {% endif %}
-    </p>
+
+    <!-- Footer -->
+    <footer class=" text-center  border-top border-secondary">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-geo-alt"></i> Location</h5>
+                    <p>Chennai, IN</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="bi bi-clock"></i> Operating Hours</h5>
+                    <p>24/7 Monitoring</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="bi bi-link"></i> Connect</h5>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <p class="mb-0">
+                <i class="bi bi-c-circle"></i> BATCH C7 - SMART INDOOR AIR QUALITY MONITORING AND AUTOMATED PURIFICATION SYSTEM
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const apiKey = '51a3a807acd2466599b111411250204'; // Replace with your actual API key
+            const city = 'Chennai';
+            const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
+    
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const temp = data.current.temp_c;
+                    const condition = data.current.condition.text;
+                    const iconUrl = `https:${data.current.condition.icon}`;
+    
+                    document.getElementById('weather-icon').innerHTML = `<img src="${iconUrl}" alt="${condition}" />`;
+                    document.getElementById('weather-condition').textContent = condition;
+                    document.getElementById('weather-temp').textContent = `${temp}°C`;
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    document.getElementById('weather-condition').textContent = 'Unable to load weather data';
+                    document.getElementById('weather-temp').textContent = '';
+                });
+        });
+    </script>
+    
 </body>
 </html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Impacts</title>
+    <!-- Bootstrap Dark Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-dark.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+   <style>
+            footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        footer {
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        body {
+        background-color: aliceblue;
+        }   
+        nav {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .card {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .impact-card {
+            transition: transform 0.3s;
+        }
+        .impact-card:hover {
+            transform: translateY(-5px);
+        }
+        .badge-aqi-good { background-color: #009966; }
+        .badge-aqi-moderate { background-color: #ffde33; color: #000; }
+        .badge-aqi-unhealthy-sensitive { background-color: #ff9933; }
+        .badge-aqi-unhealthy { background-color: #cc0033; }
+        .badge-aqi-very-unhealthy { background-color: #660099; }
+        .badge-aqi-hazardous { background-color: #7e0023; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-cloud-haze2-fill me-2"></i>
+                Air Quality Monitor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis"><i class="bi bi-graph-up"></i> Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/impacts"><i class="bi bi-heart-pulse me-1"></i> Impacts</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-heart-pulse"></i> Air Quality Impacts
+            </h1>
+            <p class="lead">Understanding how air pollution affects health, environment, and economy worldwide</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Health Impacts -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card impact-card  border-danger">
+                    <div class="card-header bg-danger">
+                        <h3><i class="bi bi-heart-pulse me-2"></i> Health Impacts</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>AQI Level</th>
+                                        <th>Health Effects</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for impact in impacts.health %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge 
+                                                {% if 'Good' in impact.level %}badge-aqi-good
+                                                {% elif 'Moderate' in impact.level %}badge-aqi-moderate
+                                                {% elif 'Sensitive' in impact.level %}badge-aqi-unhealthy-sensitive
+                                                {% elif 'Unhealthy' in impact.level and not 'Very' in impact.level %}badge-aqi-unhealthy
+                                                {% elif 'Very' in impact.level %}badge-aqi-very-unhealthy
+                                                {% else %}badge-aqi-hazardous
+                                                {% endif %}">
+                                                {{ impact.level }}
+                                            </span>
+                                        </td>
+                                        <td>{{ impact.effects }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle-fill"></i> Sensitive groups include children, elderly, and people with respiratory or heart conditions.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impacts -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card impact-card  border-success">
+                    <div class="card-header bg-success">
+                        <h3><i class="bi bi-tree me-2"></i> Environmental Impacts</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush ">
+                            {% for impact in impacts.environment %}
+                            <li class="list-group-item ">
+                                <i class="bi bi-chevron-right text-success me-2"></i>
+                                {{ impact }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="alert alert-warning mt-3">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Some environmental damage may take years to become visible but can be irreversible.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Economic Impacts -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card impact-card  border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h3><i class="bi bi-cash-coin me-2"></i> Economic Impacts</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for impact in impacts.economic %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card  border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-currency-dollar text-warning"></i> 
+                                            {{ impact }}
+                                        </h5>
+                                        <p class="card-text text-muted">Significant financial burden on society and businesses</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prevention Tips -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card  border-info">
+                    <div class="card-header bg-info">
+                        <h3><i class="bi bi-shield-check me-2"></i> Protection & Prevention</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card  border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5><i class="bi bi-house-check text-info"></i> Indoor Protection</h5>
+                                        <ul>
+                                            <li>Use air purifiers</li>
+                                            <li>Keep windows closed during high pollution</li>
+                                            <li>Add indoor plants that filter air</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card  border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5><i class="bi bi-person-check text-info"></i> Personal Protection</h5>
+                                        <ul>
+                                            <li>Wear N95 masks outdoors</li>
+                                            <li>Limit outdoor exercise</li>
+                                            <li>Stay hydrated</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card  border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5><i class="bi bi-globe text-info"></i> Environmental Action</h5>
+                                        <ul>
+                                            <li>Use public transportation</li>
+                                            <li>Reduce energy consumption</li>
+                                            <li>Support clean energy initiatives</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class=" text-center  border-top border-secondary">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-geo-alt"></i> Location</h5>
+                    <p>Chennai, IN</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="bi bi-clock"></i> Operating Hours</h5>
+                    <p>24/7 Monitoring</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="bi bi-link"></i> Connect</h5>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white-50 me-2"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <p class="mb-0">
+                <i class="bi bi-c-circle"></i> BATCH C7 - SMART INDOOR AIR QUALITY MONITORING AND AUTOMATED PURIFICATION SYSTEM
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
